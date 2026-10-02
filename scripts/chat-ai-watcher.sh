@@ -61,7 +61,7 @@ while true; do
 import sys, json
 data = json.load(sys.stdin)
 msgs = data.get('messages', [])
-user_msgs = [m for m in msgs if m.get('sender','').lower() not in ('claude', 'system')]
+user_msgs = [m for m in msgs if not m.get('role') and m.get('sender','').lower() != 'system']
 if user_msgs:
     last = user_msgs[-1]
     print(last.get('text', ''))

@@ -107,6 +107,7 @@ if tool_name in ('Agent', 'Task'):
             'general-purpose':      'general-purpose',
             'general_purpose':      'general-purpose',
             'Explore':              'Explore',
+            'accounting':           'accounting',
         }
         role = role_map.get(subagent_type, 'general-purpose')
 
@@ -127,6 +128,7 @@ if tool_name in ('Agent', 'Task'):
             'prompt-engineer':      'Prompts',
             'general-purpose':      'Agent',
             'Explore':              'Explorer',
+            'accounting':           'Accounting',
         }
         name = name_map.get(role, 'Agent')
 

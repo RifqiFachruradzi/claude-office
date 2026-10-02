@@ -68,6 +68,7 @@ export const AGENT_CONFIGS: Record<string, { color: string; emoji: string; title
   'prompt-engineer':       { color: '#ab47bc', emoji: '✍️', title: 'Prompts' },
   'general-purpose':       { color: '#78909c', emoji: '👤', title: 'General' },
   'Explore':               { color: '#4caf50', emoji: '🔭', title: 'Explorer' },
+  'accounting':            { color: '#2e7d32', emoji: '💰', title: 'Accounting' },
   // MCPs
   'github':                { color: '#f0f0f0', emoji: '🐙', title: 'GitHub' },
   'supabase':              { color: '#3ecf8e', emoji: '⚡', title: 'Supabase' },

@@ -45,6 +45,7 @@ export const ROLE_TO_CHAR: Record<string, string> = {
   'prompt-engineer':       'dev-2',
   'general-purpose':       'employee-3',
   'Explore':               'explore-1',
+  'accounting':            'employee-2',
   // MCPs
   'github':                'employee-3',
   'supabase':              'Frontend-dev-1',

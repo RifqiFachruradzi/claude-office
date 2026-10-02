@@ -6,6 +6,19 @@
 
 set -u
 
+# Resolve a working Python - on Windows `python3` is often a broken Store stub
+PY=""
+for _cand in python3 python py; do
+    if command -v "$_cand" > /dev/null 2>&1 && "$_cand" -c "" > /dev/null 2>&1; then
+        PY="$_cand"
+        break
+    fi
+done
+if [ -z "$PY" ]; then
+    echo "[chat-ai] No working Python found - cannot start watcher"
+    exit 1
+fi
+
 SERVER="http://127.0.0.1:3334"
 POLL_INTERVAL=8
 PID_FILE="$HOME/.agent-office/chat-watcher.pid"
@@ -37,14 +50,14 @@ while true; do
     curl -sf "$SERVER/health" > /dev/null 2>&1 || continue
 
     # Check AI toggle
-    IS_PAUSED=$(curl -sf "$SERVER/chat/cron-state" 2>/dev/null | python3 -c "import sys,json; print('true' if json.load(sys.stdin).get('paused') else 'false')" 2>/dev/null || echo "true")
+    IS_PAUSED=$(curl -sf "$SERVER/chat/cron-state" 2>/dev/null | "$PY" -c "import sys,json; print('true' if json.load(sys.stdin).get('paused') else 'false')" 2>/dev/null || echo "true")
     [ "$IS_PAUSED" = "true" ] && continue
 
     # Fetch messages since last seen
     RESPONSE=$(curl -sf "$SERVER/chat?since=$LAST_TS" 2>/dev/null || echo '{"messages":[]}')
 
     # Check for new user messages (not from Claude or system)
-    RESULT=$(echo "$RESPONSE" | python3 -c "
+    RESULT=$(echo "$RESPONSE" | "$PY" -c "
 import sys, json
 data = json.load(sys.stdin)
 msgs = data.get('messages', [])
@@ -80,7 +93,7 @@ if msgs:
     touch "$LOCK_FILE"
 
     # Detect which agent should respond based on keywords
-    AGENT_INFO=$(echo "$RESULT" | python3 -c "
+    AGENT_INFO=$(echo "$RESULT" | "$PY" -c "
 import sys
 msg = sys.stdin.read().lower()
 routes = [
@@ -122,7 +135,7 @@ print('assistant|Claude')
     fi
 
     # Fetch last 10 messages for context
-    CONTEXT=$(curl -sf "$SERVER/chat" 2>/dev/null | python3 -c "
+    CONTEXT=$(curl -sf "$SERVER/chat" 2>/dev/null | "$PY" -c "
 import sys, json
 data = json.load(sys.stdin)
 msgs = data.get('messages', [])[-10:]
@@ -152,12 +165,12 @@ Reply to the latest message naturally. Keep it short (8-12 words). Continue the 
     [ -z "$REPLY" ] && { echo "[chat-ai] Empty reply, skipping"; continue; }
 
     # Truncate to 15 words max
-    REPLY=$(echo "$REPLY" | python3 -c "import sys; w=sys.stdin.read().strip().split(); print(' '.join(w[:15]))")
+    REPLY=$(echo "$REPLY" | "$PY" -c "import sys; w=sys.stdin.read().strip().split(); print(' '.join(w[:15]))")
 
     echo "[chat-ai] Replying as $AGENT_NAME: $REPLY"
 
     # Post reply with agent role and name
-    CHAT_REPLY="$REPLY" CHAT_ROLE="$AGENT_ROLE" CHAT_SENDER="$AGENT_NAME" python3 -c "
+    CHAT_REPLY="$REPLY" CHAT_ROLE="$AGENT_ROLE" CHAT_SENDER="$AGENT_NAME" "$PY" -c "
 import urllib.request, json, os
 data = json.dumps({
     'sender': os.environ.get('CHAT_SENDER', 'Claude'),

@@ -97,6 +97,7 @@ routes = [
     (['api','endpoint','rest','graphql','webhook','route','middleware','request','response','http','fetch','axios','cors'], 'fullstack-developer', 'Fullstack'),
     (['git','branch','commit','rebase','cherry-pick','stash','conflict','remote','origin'], 'code-reviewer', 'Reviewer'),
     (['refactor','clean','abstract','pattern','solid','dry','yagni','architecture','module','package','monorepo'], 'architect-reviewer', 'Architect'),
+    (['invoice','budget','expense','accounting','bookkeeping','ledger','reconcile','reconciliation','finance','financial','payroll','tax','receipt'], 'accounting', 'Accounting'),
 ]
 for keywords, role, name in routes:
     if any(w in msg for w in keywords):

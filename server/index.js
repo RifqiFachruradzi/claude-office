@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { addMessage, getMessages, markSeen, addReaction } from './chat-db.js'
 import db from './chat-db.js'
+import { addDepartment, SPRITES } from '../scripts/department-lib.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -174,6 +175,29 @@ app.get('/roster', (_req, res) => {
     mcpServers,
     activeAgents: Array.from(activeAgents.values()),
   })
+})
+
+// GET /department/sprites — sprite choices for the "add department" form
+app.get('/department/sprites', (_req, res) => {
+  res.json({ sprites: SPRITES })
+})
+
+/**
+ * POST /department — scaffold a new department/agent role from the web UI.
+ * Body: { name, id?, emoji?, color?, description?, keywords?, sprite?, tools? }
+ * Writes .claude/agents/<id>.md and wires the role into hooks/agent-tracker.sh,
+ * src/types.ts, src/config.ts and scripts/chat-ai-watcher.sh — same as
+ * `npm run add-department`. Restarting the office is still required for the
+ * running chat-ai-watcher.sh loop and Vite to pick up the change.
+ */
+app.post('/department', (req, res) => {
+  try {
+    const result = addDepartment(req.body ?? {})
+    console.log(`[department] Added "${result.name}" (role: ${result.id})`)
+    res.json({ ok: true, ...result })
+  } catch (err) {
+    res.status(400).json({ ok: false, error: err.message })
+  }
 })
 
 /**

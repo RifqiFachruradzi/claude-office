@@ -1222,3 +1222,141 @@
   pointer-events: none;
   z-index: 3;
 }
+
+/* ===== ADD DEPARTMENT MODAL ===== */
+.dept-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+.dept-modal {
+  width: 360px;
+  max-width: 92vw;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: #1a1d21;
+  border: 1px solid #35363a;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+
+.dept-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #35363a;
+  color: #e8e8e8;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.dept-modal-close {
+  background: none;
+  border: none;
+  color: #8b8d91;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+}
+.dept-modal-close:hover { color: #e8e8e8; }
+
+.dept-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+
+.dept-modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #b5bac1;
+}
+
+.dept-modal-hint {
+  font-weight: 400;
+  color: #6b6d71;
+  font-size: 10px;
+}
+
+.dept-modal-row {
+  display: flex;
+  gap: 10px;
+}
+.dept-modal-row label { flex: 1; }
+
+.dept-modal-body input[type="text"],
+.dept-modal-body textarea,
+.dept-modal-body select {
+  background: #0e1012;
+  border: 1px solid #35363a;
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: #e8e8e8;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.dept-modal-body input[type="text"]:focus,
+.dept-modal-body textarea:focus,
+.dept-modal-body select:focus {
+  outline: none;
+  border-color: #2bac76;
+}
+
+.dept-modal-body input[type="color"] {
+  width: 100%;
+  height: 30px;
+  border: 1px solid #35363a;
+  border-radius: 4px;
+  background: #0e1012;
+  padding: 2px;
+}
+
+.dept-modal-submit {
+  margin-top: 4px;
+  background: #2bac76;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px;
+  cursor: pointer;
+}
+.dept-modal-submit:hover { background: #249764; }
+.dept-modal-submit:disabled { opacity: 0.6; cursor: default; }
+
+.dept-modal-error {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin: 0;
+}
+
+.dept-modal-success {
+  color: #e8e8e8;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+}
+
+.slack-add-dept-btn {
+  background: none;
+  border: none;
+  color: #8b8d91;
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+}
+.slack-add-dept-btn:hover { color: #2bac76; }

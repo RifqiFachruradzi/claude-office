@@ -19,6 +19,36 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
 
+# ---------------------------------------------------------------------------
+# Cross-platform process lookup/kill.
+# macOS/Linux have lsof; Git Bash on Windows does not, so fall back to
+# netstat (which reports Windows PIDs) + taskkill.
+# ---------------------------------------------------------------------------
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*) IS_WINDOWS=1 ;;
+    *)                    IS_WINDOWS=0 ;;
+esac
+
+pids_on_port() {
+    if [ "$IS_WINDOWS" = "1" ]; then
+        netstat -ano 2>/dev/null \
+            | awk -v port=":$1" '$1 == "TCP" && $4 == "LISTENING" && index($2, port) && substr($2, length($2) - length(port) + 1) == port { print $5 }' \
+            | sort -u
+    else
+        lsof -ti ":$1" 2>/dev/null || true
+    fi
+}
+
+kill_pids() {
+    for _pid in $1; do
+        if [ "$IS_WINDOWS" = "1" ]; then
+            taskkill //PID "$_pid" //F > /dev/null 2>&1 || true
+        else
+            kill "$_pid" 2>/dev/null || true
+        fi
+    done
+}
+
 echo ""
 echo -e "${CYAN}╔═══════════════════════════════════════════╗${RESET}"
 echo -e "${CYAN}║    Agent Office — Shutting Down            ║${RESET}"
@@ -44,9 +74,9 @@ else
 fi
 
 # 2. Server on port 3334
-SERVER_PIDS=$(lsof -ti :3334 2>/dev/null || true)
+SERVER_PIDS=$(pids_on_port 3334)
 if [ -n "$SERVER_PIDS" ]; then
-    echo "$SERVER_PIDS" | xargs kill 2>/dev/null
+    kill_pids "$SERVER_PIDS"
     echo -e "${GREEN}[ok]${RESET} Server stopped (port 3334)"
     STOPPED=$((STOPPED + 1))
 else
@@ -54,9 +84,9 @@ else
 fi
 
 # 3. Vite on port 3333
-VITE_PIDS=$(lsof -ti :3333 2>/dev/null || true)
+VITE_PIDS=$(pids_on_port 3333)
 if [ -n "$VITE_PIDS" ]; then
-    echo "$VITE_PIDS" | xargs kill 2>/dev/null
+    kill_pids "$VITE_PIDS"
     echo -e "${GREEN}[ok]${RESET} Vite dev server stopped (port 3333)"
     STOPPED=$((STOPPED + 1))
 else

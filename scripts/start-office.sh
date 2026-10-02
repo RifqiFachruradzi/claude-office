@@ -17,8 +17,23 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
+
+# Cross-platform "open" — macOS `open`, Windows Git Bash, Linux `xdg-open`
+open_url() {
+    if command -v open > /dev/null 2>&1; then
+        open "$1"
+    elif command -v explorer.exe > /dev/null 2>&1; then
+        # explorer.exe exits non-zero even on success
+        explorer.exe "$1" > /dev/null 2>&1 || true
+    elif command -v xdg-open > /dev/null 2>&1; then
+        xdg-open "$1" > /dev/null 2>&1 || true
+    else
+        echo "  (no opener found — open manually: $1)"
+    fi
+}
 
 cd "$PROJECT_DIR"
 
@@ -45,7 +60,7 @@ done
 if [ -n "$ELECTRON_APP" ]; then
     echo -e "${GREEN}[ok]${RESET} Found packaged app: $ELECTRON_APP"
     echo -e "${CYAN}[...]${RESET} Launching Agent Office..."
-    open "$ELECTRON_APP"
+    open_url "$ELECTRON_APP"
     echo ""
     echo -e "${GREEN}Agent Office launched!${RESET}"
     echo "  The app manages the server internally."
@@ -112,7 +127,7 @@ rm -f "$WATCHER_PID_FILE"
 
 # Open in browser
 echo -e "${CYAN}[...]${RESET} Opening Agent Office..."
-open http://localhost:3333
+open_url http://localhost:3333
 
 echo ""
 echo -e "${GREEN}Agent Office is running!${RESET}"

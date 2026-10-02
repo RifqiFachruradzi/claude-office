@@ -22,7 +22,8 @@
     "electron": "electron .",
     "start": "npm run dev:electron",
     "server": "node server/index.js",
-    "install-hooks": "bash hooks/install-hooks.sh"
+    "install-hooks": "bash hooks/install-hooks.sh",
+    "add-department": "node scripts/add-department.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.8.0",

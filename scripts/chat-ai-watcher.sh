@@ -126,6 +126,7 @@ print('assistant|Claude')
 
     # Gather dev context
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
     DEV_CONTEXT=$(bash "$SCRIPT_DIR/gather-context.sh" 2>/dev/null || echo "")
 
     # Load persona file
@@ -147,8 +148,29 @@ for m in msgs:
 print(chr(10).join(lines))
 " 2>/dev/null)
 
-    # Build prompt from persona + dev context + conversation context + message
-    PROMPT="$PERSONA
+    # ── Real execution — if this role has an actual subagent definition
+    # (.claude/agents/<role>.md), dispatch it for real with tool access
+    # instead of just role-playing a chat reply. The global PreToolUse/
+    # PostToolUse hook picks up the nested Task tool call automatically,
+    # so the character visibly works in the office while this runs.
+    AGENT_DEF="$PROJECT_DIR/.claude/agents/$AGENT_ROLE.md"
+
+    if [ "$AGENT_ROLE" != "assistant" ] && [ -f "$AGENT_DEF" ]; then
+        echo "[chat-ai] Executing real task via subagent: $AGENT_ROLE"
+
+        TASK_PROMPT="Gunakan Task tool dengan subagent_type \"$AGENT_ROLE\" untuk mengerjakan permintaan berikut: $RESULT
+
+Setelah subagent selesai, balas HANYA dengan satu kalimat ringkas (maks 15 kata) berisi hasil/temuannya, gaya santai seperti chat kantor."
+
+        REPLY=$(cd "$PROJECT_DIR" && timeout 180 claude -p "$TASK_PROMPT" \
+            --max-turns 20 \
+            --allowedTools "Task,Read,Grep,Glob,Bash" \
+            --permission-mode bypassPermissions \
+            --add-dir "$HOME" \
+            --output-format text 2>/dev/null | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    else
+        # ── Cosmetic roleplay-only reply (no real tool access) ──
+        PROMPT="$PERSONA
 
 You are responding as $AGENT_NAME, the office $AGENT_ROLE. Stay in character.
 
@@ -159,8 +181,8 @@ $CONTEXT
 
 Reply to the latest message naturally. Keep it short (8-12 words). Continue the conversation — reference previous messages if relevant."
 
-    # Call Claude CLI
-    REPLY=$(claude -p "$PROMPT" --max-turns 1 2>/dev/null | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        REPLY=$(claude -p "$PROMPT" --max-turns 1 2>/dev/null | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    fi
 
     [ -z "$REPLY" ] && { echo "[chat-ai] Empty reply, skipping"; continue; }
 

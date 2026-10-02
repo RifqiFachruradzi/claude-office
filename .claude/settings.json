@@ -6,5 +6,23 @@
       "Bash(bash */scripts/start-office.sh:*)",
       "Bash(bash */scripts/stop-office.sh:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "bash \"C:\\Users\\rifqi\\Documents\\claude-office\\hooks\\agent-tracker.sh\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "bash \"C:\\Users\\rifqi\\Documents\\claude-office\\hooks\\agent-tracker.sh\"" }
+        ]
+      }
+    ]
   }
 }

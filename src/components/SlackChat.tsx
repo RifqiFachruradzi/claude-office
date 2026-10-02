@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { ROLE_TO_CHAR } from '../config'
 import { getSpritePath, useTheme, toggleTheme, getTheme, themedDisplayName } from '../theme'
+import AddDepartmentModal from './AddDepartmentModal'
 
 function getAvatarSrc(role: string, agentId?: string): string {
   const charBase = ROLE_TO_CHAR[role] ?? 'employee-3'
@@ -49,6 +50,7 @@ const SlackChat: React.FC<SlackChatProps> = ({ messages, muted, volume, onToggle
   const [inputText, setInputText] = useState('')
   const [showSlashHint, setShowSlashHint] = useState(false)
   const [emojiPickerMsgId, setEmojiPickerMsgId] = useState<number | null>(null)
+  const [showAddDept, setShowAddDept] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
   const onSendRef = useRef(onSendMessage)
   onSendRef.current = onSendMessage
@@ -135,6 +137,13 @@ const SlackChat: React.FC<SlackChatProps> = ({ messages, muted, volume, onToggle
         <div className="slack-channel-icon">#</div>
         <span className="slack-channel-name">office-general</span>
         <div className="slack-header-right">
+          <button
+            className="slack-add-dept-btn"
+            onClick={() => setShowAddDept(true)}
+            title="Tambah departemen/agent baru"
+          >
+            ＋
+          </button>
           <div className="slack-online-dot" />
           <span className="slack-online-count">{onlineCount}</span>
           <div
@@ -289,6 +298,7 @@ const SlackChat: React.FC<SlackChatProps> = ({ messages, muted, volume, onToggle
           />
         </div>
       </div>
+      {showAddDept && <AddDepartmentModal onClose={() => setShowAddDept(false)} />}
     </div>
   )
 }

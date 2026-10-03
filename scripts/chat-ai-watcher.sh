@@ -94,7 +94,7 @@ if msgs:
 
     # Detect which agent should respond based on keywords
     AGENT_INFO=$(echo "$RESULT" | "$PY" -c "
-import sys
+import sys, re
 msg = sys.stdin.read().lower()
 routes = [
     (['bug','error','crash','fix','broken','debug','exception','traceback','stack trace','segfault'], 'debugger', 'Debugger'),
@@ -111,9 +111,12 @@ routes = [
     (['git','branch','commit','rebase','cherry-pick','stash','conflict','remote','origin'], 'code-reviewer', 'Reviewer'),
     (['refactor','clean','abstract','pattern','solid','dry','yagni','architecture','module','package','monorepo'], 'architect-reviewer', 'Architect'),
     (['invoice','budget','expense','accounting','bookkeeping','ledger','reconcile','reconciliation','finance','financial','payroll','tax','receipt','keuangan','laporan keuangan','pemasukan','pengeluaran','pembukuan','akuntansi','faktur','tagihan','anggaran'], 'accounting', 'Accounting'),
+    (['marketing','campaign','konten','promosi','iklan','copywriting','media sosial','branding','audiens'], 'marketing', 'Marketing'),
+    (['karyawan','rekrutmen','cuti','personalia','onboarding','kontrak kerja','resign','pegawai','sumber daya manusia'], 'hr', 'HR'),
+    (['server down','error server','maintenance','infrastruktur','troubleshoot','jaringan','backup server','downtime','it support','sistem error'], 'operations', 'Operations'),
 ]
 for keywords, role, name in routes:
-    if any(w in msg for w in keywords):
+    if any(re.search(r'\b' + re.escape(w) + r'\b', msg) for w in keywords):
         print(f'{role}|{name}')
         sys.exit(0)
 print('assistant|Claude')

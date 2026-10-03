@@ -46,6 +46,9 @@ export const ROLE_TO_CHAR: Record<string, string> = {
   'general-purpose':       'employee-3',
   'Explore':               'explore-1',
   'accounting':            'employee-2',
+  'marketing':             'Frontend-dev-1',
+  'hr':                    'employee-1',
+  'operations':            'dev-1',
   // MCPs
   'github':                'employee-3',
   'supabase':              'Frontend-dev-1',
